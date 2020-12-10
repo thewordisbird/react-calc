@@ -1,12 +1,13 @@
 
 const Key = ({ text, value, type, width, handleClick }) => (
-  <div 
+  <button 
     className={`Calc-${width ? width+'-' : ''}key ${type}-key`}
     value={value}
     onClick={() => handleClick(value)}
   >
     {text}
-  </div>
+  </button>
+
 )
 
 export default Key;
