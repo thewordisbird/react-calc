@@ -1,3 +1,5 @@
+import React from 'react';
+import PropType from 'prop-types';
 
 const Key = ({ text, value, type, width, handleClick }) => (
   <button 
@@ -7,7 +9,13 @@ const Key = ({ text, value, type, width, handleClick }) => (
   >
     {text}
   </button>
-
 )
+Key.propTypes = {
+  text: PropType.string.isRequired,
+  value: PropType.string.isRequired,
+  type: PropType.string.isRequired,
+  width: PropType.string,
+  handleClick: PropType.func.isRequired
+}
 
 export default Key;
