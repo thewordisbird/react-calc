@@ -63,7 +63,27 @@ const Calculator = () => {
 
   const handlePercent = () => {
     if (display !== '0') {
-      setDisplay(display => '0.0' + display)
+      setDisplay(display => {
+        if (display.indexOf('.') === -1) {
+          switch (display.length) {
+            case 1:
+              return '0.0' + display
+            case 2:
+              return '0.' + display
+            default:
+              return display.slice(0, -2) + '.' + display.slice(-2)
+          }        
+        } else {
+          const decimal = display.indexOf('.')
+          switch (decimal) {
+            case 1:
+              console.log('here')
+              return '0.00' + display.slice(decimal + 1)
+            default:
+              return display.slice(0, decimal-2) + '.' + display.slice(decimal-2, decimal) + display.slice(-decimal + 1)
+          }
+        }
+      })
     }
   }
 
