@@ -1,19 +1,18 @@
 import React from 'react';
 import PropType from 'prop-types';
 
-const Key = ({ text, value, type, width, handleClick }) => (
+const Key = ({ children, value, width, handleClick }) => (
   <button 
-    className={`Calc-${width ? width+'-' : ''}key ${type}-key`}
+    className={`Calc-${width ? width+'-' : ''}key`}
     value={value}
     onClick={() => handleClick(value)}
   >
-    {text}
+    {children}
   </button>
 )
 Key.propTypes = {
-  text: PropType.string.isRequired,
+  children: PropType.string.isRequired,
   value: PropType.string.isRequired,
-  type: PropType.string.isRequired,
   width: PropType.string,
   handleClick: PropType.func.isRequired
 }
