@@ -14,7 +14,6 @@ const App = () => {
   const [reset, setReset] = useState(true)
 
   useEffect(() => {
-    console.log('in first useeffect')
     if (reset) {
       setDisplay(display)
       setNewInput(true)
@@ -25,19 +24,16 @@ const App = () => {
   }, [expression])
 
   useEffect(() => {
-    console.log('in second useeffect')
     window.addEventListener('keydown', handleUserKeyPress)
     return () => {
       window.removeEventListener('keydown', handleUserKeyPress)
     }
-  }, [newInput, expression])
+  }, [newInput, expression, display])
 
   const handleUserKeyPress = (e) => {
-    console.log(e.key)
     if ("0123456789.".indexOf(e.key) > -1) {
         handleKeypadPress(e.key)      
     } else if ("+-/*".indexOf(e.key) > -1) {
-      console.log('in handle operator')
       handleOperator(e.key)
     } else if (e.key === 'Enter') {
       handleOperator('=')
@@ -128,7 +124,6 @@ const App = () => {
 
   const handleKeypadPress = (value) => {
     if (newInput) {
-      console.log('NI in handlerL', newInput)
       switch (value){
         case '.':
           setDisplay('0.')
@@ -138,7 +133,6 @@ const App = () => {
       }
       setNewInput(false)
     } else {
-      console.log('old input')
       switch (value) {
         case '.':
           if (value === '.' && display.indexOf('.') === -1) {
