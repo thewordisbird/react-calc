@@ -2,6 +2,8 @@ import React from 'react';
 import PropType from 'prop-types';
 
 const Key = ({ children, value, width, handleClick }) => (
+  // Component to display a calculator key with props to handle display
+  // and onClick functinality
   <button 
     className={`Calc-${width ? width+'-' : ''}key`}
     value={value}

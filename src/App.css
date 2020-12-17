@@ -1,7 +1,7 @@
 html, body {
-    background-image: linear-gradient(to bottom right, #33ccff, #ff99cc);
+    overflow: hidden;
 }
-.container {
+#root {
     height: 100vh;
     display: flex;
     justify-content: center;
@@ -19,47 +19,37 @@ html, body {
     width: calc(100vw / 4);
     height: calc(100vh / 6);
     border: none;
-    /* margin: 1px; */
     color: white;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 32px;
-
 }
-
 .Calc-double-key{
     width: calc(100vw / 2);
     height: calc(100vh / 6);
     border: none;
-    /* margin: 1px; */
     color: white;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 32px;
 }
-
 .Calc-controls {
     display: flex;
 }
 .Calc-controls button{
     background: #007399;
 }
-
 .Calc-operators {
     display: flex;
     flex-direction: column;
 }
-    
 .Calc-operators button {
     background: #ff3399;
 }
-
 .Calc-keypad {
     width: calc(100vw * .75);
 }
-
 .Calc-keypad button {
     background: #0099cc;
 }
-
 .Calc-display{
     width: 100vw;
     height: calc(100vh / 6);
@@ -76,26 +66,30 @@ html, body {
 }
 
 @media only screen and (min-width: 600px) {
+    html, body {
+        background-image: linear-gradient(to bottom right, #33ccff, #ff99cc);
+    }
     .Calc-app {
         width: 408px;
         height: 600px;
     }
-
     .Calc-key{
         width: 100px;
         height: 100px;
         margin: 1px;
         border: none;
     }
-
     .Calc-double-key{
         width: 202px;
         height: 100px;
         margin: 1px;
         border: none;
     }
-
     .Calc-keypad {
         width: 306px;
+    }
+    .Calc-display{
+        width: 100%;
+        height: 100px;
     }
 }

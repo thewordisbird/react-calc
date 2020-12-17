@@ -4,6 +4,7 @@ import  PropType from 'prop-types';
 import Key from './Key';
 
 const Operators = ({ handleOperator}) => (
+  // Component to hold the aritmatic operator keys
   <div className="Calc-operators">
     <Key 
       value="/"
