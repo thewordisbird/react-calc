@@ -4,24 +4,29 @@ import PropType from 'prop-types';
 import Key from './Key'
 
 
-const Keypad = (handleKeypadPress) => (
+const Keypad = ({ handleOperandPress, handleEqualPress }) => (
   // Component to house the numeric keys. In this case it includes the decimal key
   <div className="Calc-keypad">
   {"7894561230.".split('').map( (val, idx) => (
     <Key 
       key={idx}
       value={val} 
-      width={(val === '0') ? 'double' : ''}
-      // Question: Why is handleKeypadPress converted to an object?
-      handleClick={handleKeypadPress.handleKeypadPress}
+      handleClick={handleOperandPress}
     >
       {val}
     </Key>
   ))}
+  <Key
+    value='='
+    handleClick={handleEqualPress}
+  >
+    =
+  </Key>
   </div>
 )
 Keypad.propTypes = {
-  handleKeypadPress: PropType.func.isRequired
+  handleOperandPress: PropType.func.isRequired,
+  handleEqualPress: PropType.func.isRequired
 }
 
 export default Keypad;

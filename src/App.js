@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 // Components
 import Display from './components/Display';
+// import History from './components/History'
 import Controls from './components/Controls';
 import Operators from './components/Operators';
 import Keypad from './components/Keypad';
@@ -13,7 +14,9 @@ const App = () => {
   const [newInput, setNewInput] = useState(true)
   const [reset, setReset] = useState(true)
 
+
   useEffect(() => {
+    // Effect hook to handle updating the display after the expression is updated
     if (reset) {
       setDisplay(display)
       setNewInput(true)
@@ -24,23 +27,73 @@ const App = () => {
   }, [expression])
 
   useEffect(() => {
+    // Effect hook to handle key entry functionality
+    console.log('in effect')
+    const handleUserKeyPress = (e) => {
+      if ("0123456789.".indexOf(e.key) > -1) {
+        handleKeypadPress(e.key)      
+      } else if ("+-/*".indexOf(e.key) > -1) {
+        handleOperator(e.key)
+      } else if (e.key === 'Enter') {
+        handleOperator('=')
+      } else if (e.key === 'Backspace') {
+        handleReset()
+      }
+    }
+
     window.addEventListener('keydown', handleUserKeyPress)
+
     return () => {
+      console.log('running cleanup')
       window.removeEventListener('keydown', handleUserKeyPress)
     }
-  }, [newInput, expression, display])
+  }, [newInput, expression, display, reset])
 
-  const handleUserKeyPress = (e) => {
-    if ("0123456789.".indexOf(e.key) > -1) {
-        handleKeypadPress(e.key)      
-    } else if ("+-/*".indexOf(e.key) > -1) {
-      handleOperator(e.key)
-    } else if (e.key === 'Enter') {
-      handleOperator('=')
-    } else if (e.key === 'Backspace') {
-      handleReset()
+  useEffect(() => {
+    // Effect hook to handle key press styling to mimic mouse usage when
+    // using a keypad to enter the data
+    const findKey = (e) =>{
+      let k
+      if ("0123456789.".indexOf(e.key) > -1) {
+        k = document.getElementById(`key-${e.key}`)
+      } else if ("+-/*".indexOf(e.key) > -1) {
+        k = document.getElementById(`key-${e.key}`)
+      } else if (e.key === 'Enter') {
+        k = document.getElementById('key-=')
+      } else if (e.key === 'Backspace') {
+        k = document.getElementById('key-C') || document.getElementById('key-AC')
+      } else {
+        k = null
+      }
+      return k
     }
-}
+
+    const addStyle = (e) => {
+      console.log('logging',e.key)
+      const k = findKey(e)
+      console.log('loggin', k)
+      console.log(k)
+      if (k) {
+        k.style.background = "lightslategray"
+      }  
+    }
+
+    const removeStyle = (e) => {
+      const key = findKey(e)
+      if (key) {
+        key.removeAttribute('style')
+      }    
+    }
+
+    window.addEventListener('keydown', addStyle)
+    window.addEventListener('keyup', removeStyle)
+
+    return () => {
+      window.removeEventListener('keydown', addStyle)
+      window.removeEventListener('keyup', removeStyle)
+    }
+  }, [])
+  
   
   const evaluateExpression = (a,b, operator) => {
     const operators = {
