@@ -10,7 +10,7 @@ const Operators = ({ handleOperatorPress, handleClearPress}) => (
       value="Clear"
       handleClick={handleClearPress}
     >
-      <i className="fas fa-backspace"></i>
+      <i className="fas fa-backspace" />
     </Key>
     <Key 
       value="/"

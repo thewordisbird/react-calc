@@ -14,7 +14,10 @@ const Key = ({ children, value, handleClick }) => (
   </button>
 )
 Key.propTypes = {
-  children: PropType.string.isRequired,
+  children: PropType.oneOfType([
+    PropType.string,
+    PropType.object
+  ]).isRequired,  
   value: PropType.string.isRequired,
   handleClick: PropType.func.isRequired
 }

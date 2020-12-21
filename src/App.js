@@ -1,230 +1,167 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
-// Components
+//Components
 import Display from './components/Display';
-// import History from './components/History'
-import Controls from './components/Controls';
-import Operators from './components/Operators';
 import Keypad from './components/Keypad';
+import Operators from './components/Operators';
 // CSS
 import './App.css'
 
 const App = () => {
-  const [expression, setExpression] = useState({operand: null, operator: null})
-  const [display, setDisplay] = useState('0')
+  console.log('rendering')
+  const [result, setResult] = useState('')
+  const [expression, setExpression] = useState('')
+  const [input, setInput] = useState('0')
   const [newInput, setNewInput] = useState(true)
-  const [reset, setReset] = useState(true)
 
-
-  useEffect(() => {
-    // Effect hook to handle updating the display after the expression is updated
-    if (reset) {
-      setDisplay(display)
-      setNewInput(true)
-    } else {
-      setDisplay(expression.operand || display)
-      setNewInput(true)
-    }    
-  }, [expression])
-
-  useEffect(() => {
-    // Effect hook to handle key entry functionality
-    console.log('in effect')
-    const handleUserKeyPress = (e) => {
-      if ("0123456789.".indexOf(e.key) > -1) {
-        handleKeypadPress(e.key)      
-      } else if ("+-/*".indexOf(e.key) > -1) {
-        handleOperator(e.key)
-      } else if (e.key === 'Enter') {
-        handleOperator('=')
-      } else if (e.key === 'Backspace') {
-        handleReset()
-      }
-    }
-
-    window.addEventListener('keydown', handleUserKeyPress)
-
-    return () => {
-      console.log('running cleanup')
-      window.removeEventListener('keydown', handleUserKeyPress)
-    }
-  }, [newInput, expression, display, reset])
-
-  useEffect(() => {
-    // Effect hook to handle key press styling to mimic mouse usage when
-    // using a keypad to enter the data
-    const findKey = (e) =>{
-      let k
-      if ("0123456789.".indexOf(e.key) > -1) {
-        k = document.getElementById(`key-${e.key}`)
-      } else if ("+-/*".indexOf(e.key) > -1) {
-        k = document.getElementById(`key-${e.key}`)
-      } else if (e.key === 'Enter') {
-        k = document.getElementById('key-=')
-      } else if (e.key === 'Backspace') {
-        k = document.getElementById('key-C') || document.getElementById('key-AC')
-      } else {
-        k = null
-      }
-      return k
-    }
-
-    const addStyle = (e) => {
-      console.log('logging',e.key)
-      const k = findKey(e)
-      console.log('loggin', k)
-      console.log(k)
-      if (k) {
-        k.style.background = "lightslategray"
-      }  
-    }
-
-    const removeStyle = (e) => {
-      const key = findKey(e)
-      if (key) {
-        key.removeAttribute('style')
-      }    
-    }
-
-    window.addEventListener('keydown', addStyle)
-    window.addEventListener('keyup', removeStyle)
-
-    return () => {
-      window.removeEventListener('keydown', addStyle)
-      window.removeEventListener('keyup', removeStyle)
-    }
-  }, [])
-  
-  
-  const evaluateExpression = (a,b, operator) => {
+  const infixToPostFix = (exp) => {
+    console.log(expression)
     const operators = {
-      '/': (a,b) => a/b,
-      '*': (a,b) => a*b,
-      '+': (a,b) => a+b,
-      '-': (a,b) => a-b, 
+      '/': {func: (a,b) => a/b, prec: 0},
+      '*': {func: (a,b) => a*b, prec: 0},
+      '+': {func: (a,b) => a+b, prec: 1},
+      '-': {func: (a,b) => a-b, prec: 1}
     }
-    return operators[operator](parseFloat(a), parseFloat(b)).toString()
-  }
-  
-  const handleReset = () => {
-    switch (reset) {
-      default:
-        break;
-      case false:
-        // Clear the display data to re-enter
-        setDisplay('0');
-        setReset(true)
-        break;
-      case true:
-        setDisplay('0');
-        setExpression([]);
-        break;
-    }
-  }
-
-  const handleSignChange = () => {
-    if (display !== '0') {
-      setDisplay(display => (-1 * parseFloat(display)).toString())
-    }
-  }
-
-  const handlePercent = () => {
-    if (display !== '0'){
-      setDisplay(display => (parseFloat(display) / 100).toString())
-    } 
-  }
-
-  const handleOperator = (value) => {
-    // Push the display to the expression state and add the operator
-    switch (value) {
-      case '=':
-        if (expression.operator) {
-          setExpression(expression => {
-            return {
-              ...expression,
-              operand: evaluateExpression(expression.operand, display, expression.operator),
-              operator: null
-            }
-          })
+    
+    const output = exp.split(' ').reduce((acc, cur) => {
+      console.log('reduce cur', cur)
+      if (cur != ""){
+      if (cur in operators) {
+        console.log('eval operator')
+        // Move any operator out of opStack that has a lower or == precident
+        const tempOpStack = [...acc.opStack]
+        const tempOutput = [...acc.output] 
+        while (tempOpStack.length !== 0 && operators[tempOpStack[tempOpStack.length - 1]].prec <= operators[cur].prec ) {
+          
+          tempOutput.push(tempOpStack.pop()) 
         }
-        break;
-      default:
-        if (!expression.operator && expression.operand == null) {
-          setExpression(expression => (
-            {
-              ...expression, 
-              operand: display,
-              operator: value
-            }
-          ))
-          } else if (!expression.operator) {
-              setExpression(expression => (
-                {
-                ...expression,
-                operator: value
-              }
-            ))          
-        } else {
-          setExpression(expression => {
-            return {
-              ...expression,
-              operand: evaluateExpression(expression.operand, display, expression.operator),
-              operator: value
-            }
-          })
-        }    
-    }    
+        tempOpStack.push(cur)
+      acc = {...acc, output: tempOutput, opStack:tempOpStack}
+      } else {
+        acc = {...acc, output: [...acc.output, cur]}
+      }}
+      return acc
+    }, {output: [], opStack: []})
+
+    // Move any remaining operators from opStack to output and return
+      return [...output.output, ...output.opStack.reverse()]
   }
 
-  const handleKeypadPress = (value) => {
-    if (newInput) {
-      switch (value){
-        case '.':
-          setDisplay('0.')
-          break;
-        default:
-          setDisplay(value)
-      }
-      setNewInput(false)
-    } else {
-      switch (value) {
-        case '.':
-          if (value === '.' && display.indexOf('.') === -1) {
-            setDisplay(display => display + value)
-          }
-          break;
-        default:
-          if (display === '0') {
-            setDisplay(value)
-          } else {
-            setDisplay(display => display + value)
-          }
-      }   
+  const evalPostFix = (postFixExp) => {
+    if (postFixExp.length > 2){
+    const operators = {
+      '/': {func: (a,b) => a/b, prec: 0},
+      '*': {func: (a,b) => a*b, prec: 0},
+      '+': {func: (a,b) => a+b, prec: 1},
+      '-': {func: (a,b) => a-b, prec: 1}
     }
-    setReset(false)    
-  }
 
-  return (
-    <div className="Calc-app">
-      <Display output={display} />
-      <div>
-      <Controls 
-        reset={reset}
-        handleReset={handleReset} 
-        handleSignChange={handleSignChange} 
-        handlePercent={handlePercent}
-      />
-      <Keypad 
-        handleKeypadPress={handleKeypadPress}
-      />
-      </div>
-      
-      <Operators
-        handleOperator={handleOperator}
-      />
-      
-        
-    </div>
-  )
+    return  postFixExp.reduce((acc, cur) => {
+      if (cur in operators) {
+        const b = acc.pop()
+        const a = acc.pop()
+        acc = [...acc, operators[cur].func(a,b)]
+      } else {
+        acc = [...acc, parseFloat(cur)]
+      }
+      return acc
+    }, [])
+  } else{
+    return ''
+  } 
 }
 
+  useEffect(() => {
+    console.log(infixToPostFix(expression))
+    const postFix = infixToPostFix(expression)
+    const evalResult = evalPostFix(postFix)
+    console.log(evalResult)
+    setResult(result => {
+      
+      if  (!isNaN(evalResult)) {
+        return evalResult.toString()
+      } else {
+        return result
+      }
+    })    
+  }, [expression])
+
+
+  const handleOperandPress = (char) => {
+    // Set Operand to display. This includes all numbers and decimal
+    const validChar = () => {
+      switch (char) {
+        case '.':
+          return (input.indexOf(char) === -1)
+        case '0':
+          return !(input.indexOf(char) === 0 && input.length === 1)
+        default:
+          return true
+      }
+    }
+    
+    let updatedInput
+    let updatedChar = char
+    if (validChar()) {
+      if (newInput) {
+        switch (char) {
+          case '.':
+            console.log('in case')
+            updatedChar = '0.'
+            break
+          default:
+            updatedInput = char
+        }
+        setNewInput(false)
+      } else {
+        updatedInput = input + char
+      }
+      
+      setInput(updatedInput)
+      setExpression(expression => expression + updatedChar)
+    }
+  }
+
+
+  const handleOperatorPress = (char) => {
+    // Change operator if no operand has been added
+    if (newInput) {
+      setExpression(expression => expression.slice(0, -2) + char + ' ')
+    } else {
+      // Move current display to result.operand
+    setExpression(expression => {
+      if (expression.length === 0) {
+        return input + ' ' + char
+      } else {
+        return expression + ' ' + char + ' '
+      }
+    })
+    
+    setNewInput(true)
+  }
+    }
+    
+
+  const handleEqualPress = () => {
+    setExpression(result)
+    setResult('')
+  }
+
+  const handleClearPress = () => {
+    setExpression(expression => expression.trim().slice(0, -1) + ' ')
+  }
+
+
+  return (
+      <div className="Calc-app">
+        <Display result={result} expression={expression} />
+        <div className="Calc-keys">
+          <Keypad handleOperandPress={handleOperandPress} handleEqualPress={handleEqualPress} />
+          <Operators handleOperatorPress={handleOperatorPress} handleClearPress={handleClearPress} />
+        </div>
+      </div>
+
+    )
+
+}
 export default App;

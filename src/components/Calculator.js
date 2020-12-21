@@ -1,7 +1,5 @@
-/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
 //Components
-// import History from './components/History'
 import Display from './Display';
 import Keypad from './Keypad';
 import Operators from './Operators';
@@ -151,6 +149,7 @@ const Calculator = () => {
     setExpression(expression => expression.trim().slice(0, -1) + ' ')
   }
 
+    const x = 3;
 
   return (
       <div className="Calc-app">
