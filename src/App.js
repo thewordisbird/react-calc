@@ -12,16 +12,17 @@ import { infixToPostFix, evalPostFix } from './utils/evaluate'
 const App = () => {
   const [result, setResult] = useState('')
   const [expression, setExpression] = useState('')
-  const [input, setInput] = useState('0')
-  const [newInput, setNewInput] = useState(true)
+  const [input, setInput] = useState({
+    value: '0',
+    newInput: true
+  })
 
   useEffect(() => {
-    console.log(infixToPostFix(expression))
+    // Evaluate the expression whenver the expression string changes
     const postFix = infixToPostFix(expression)
     const evalResult = evalPostFix(postFix)
-    console.log(evalResult)
-    setResult(result => {
-      
+    
+    setResult(result => {      
       if  (!isNaN(evalResult)) {
         return evalResult.toString()
       } else {
@@ -31,6 +32,7 @@ const App = () => {
   }, [expression])
 
   useEffect(() => {
+    // Add event handler to allow for keyboard interaction with app
     const handleUserKeyPress = (e) => {
       if ("0123456789.".indexOf(e.key) > -1) {
         handleOperandPress(e.key)      
@@ -47,85 +49,79 @@ const App = () => {
     return () => {
       window.removeEventListener('keydown', handleUserKeyPress)
     }
-  }, [newInput, expression])
-
-  
+  }, [input, expression])
 
   const handleOperandPress = (char) => {
     // Set Operand to display. This includes all numbers and decimal
     const validChar = () => {
       switch (char) {
         case '.':
-          return (input.indexOf(char) === -1)
+          return (input.value.indexOf(char) === -1)
         case '0':
-          return !(input.indexOf(char) === 0 && input.length === 1)
+          return !(input.value.indexOf(char) === 0 && input.length === 1)
         default:
           return true
       }
     }
     
-    let updatedInput
-    let updatedChar = char
     if (validChar()) {
-      if (newInput) {
-        switch (char) {
-          case '.':
-            console.log('in case')
-            updatedChar = '0.'
-            break
-          default:
-            updatedInput = char
-        }
-        setNewInput(false)
+      if (input.newInput) {
+        setInput(input => (
+          {
+            value: (char === '.' ? '0.' : char),
+            newInput: false
+          }
+        ))
+        setExpression(expression => expression + (char === '.' ? '0.' : char))      
       } else {
-        updatedInput = input + char
-      }
-      
-      setInput(updatedInput)
-      setExpression(expression => expression + updatedChar)
+        setInput(input => (
+          {
+            ...input,
+            value: input + char
+          }
+        ))
+        setExpression(expression => expression + char)
+      }      
     }
   }
 
-
   const handleOperatorPress = (char) => {
     // Change operator if no operand has been added
-    if (newInput) {
+    if (input.newInput) {
       setExpression(expression => expression.slice(0, -2) + char + ' ')
     } else {
       // Move current display to result.operand
     setExpression(expression => {
       if (expression.length === 0) {
-        return input + ' ' + char
+        return input.value + ' ' + char
       } else {
         return expression + ' ' + char + ' '
       }
     })
-    
-    setNewInput(true)
+    setInput(input => ({...input, newInput: true }))
   }
     }
     
 
   const handleEqualPress = () => {
-    setExpression(result)
-    setResult('')
+    if (result) {
+      setExpression(result)
+      setResult('')
+    }
   }
 
   const handleClearPress = () => {
     setExpression(expression => expression.trim().slice(0, -1) + ' ')
   }
 
-
   return (
-      <div className="Calc-app">
-        <Display result={result} expression={expression} />
-        <div className="Calc-keys">
-          <Keypad handleOperandPress={handleOperandPress} handleEqualPress={handleEqualPress} />
-          <Operators handleOperatorPress={handleOperatorPress} handleClearPress={handleClearPress} />
-        </div>
+    <div className="Calc-app">
+      <Display result={result} expression={expression} />
+      <div className="Calc-keys">
+        <Keypad handleOperandPress={handleOperandPress} handleEqualPress={handleEqualPress} />
+        <Operators handleOperatorPress={handleOperatorPress} handleClearPress={handleClearPress} />
       </div>
-
-    )
-
+    </div>
+  )
 }
 export default App;
