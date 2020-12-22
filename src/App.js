@@ -21,7 +21,7 @@ const App = () => {
     const postFix = infixToPostFix(expression.expression)
     const evalResult = evalPostFix(postFix)
     
-    setResult(result => {      
+    setResult(result => {     
       if  (!isNaN(evalResult)) {
         return evalResult.toString()
       } else {
@@ -92,10 +92,21 @@ const App = () => {
 
   const handleOperatorPress = (char) => {
     // Change operator if no operand has been added
-    if (expression.newOperand) {
+    if (expression.newOperand && expression.expression.length > 1) {
       const tmpExpression = [...expression.expression]
       tmpExpression[tmpExpression.length - 1] = char
       setExpression(expression => ({...expression, expression: tmpExpression}))
+    } else if (expression.newOperand) {
+      console.log('here')
+      if (char === '-') {
+        setExpression(expression => (
+          {
+            ...expression,
+            expression: [char]
+          }
+        ))
+      }
+      
     } else {
       // Move current display to result.operand
       setExpression(expression => (
@@ -114,14 +125,16 @@ const App = () => {
       setResult('')
     }
   }
-
+1
   const handleClearPress = () => {
     setExpression(expression => {
       const strExpression = expression.expression.join(' ')
+      const modifiedExpression = strExpression.slice(0, -1).trim().split(' ')
       return (
         {
           ...expression,
-          expression: strExpression.trim().slice(0, -1).split(' ')
+          expression: modifiedExpression[0] === '' ? [] : modifiedExpression,
+          newOperand: '+-*/'.indexOf(modifiedExpression[modifiedExpression.length -1]) === 0
         }
       )
     })

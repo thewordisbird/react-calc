@@ -34,7 +34,7 @@ export const evalPostFix = (postFixExp) => {
     return  postFixExp.reduce((acc, cur) => {
       if (cur in operators) {
         const b = acc.pop()
-        const a = acc.pop()
+        const a = acc.pop() || 0 // Handles case where minus sign is used to make first operand negative
         acc = [...acc, operators[cur].func(a,b)]
       } else {
         acc = [...acc, parseFloat(cur)]
