@@ -11,15 +11,14 @@ import { infixToPostFix, evalPostFix } from './utils/evaluate'
 
 const App = () => {
   const [result, setResult] = useState('')
-  const [expression, setExpression] = useState('')
-  const [input, setInput] = useState({
-    value: '0',
-    newInput: true
+  const [expression, setExpression] = useState({
+    expression: [],
+    newOperand: true
   })
-
+  
   useEffect(() => {
     // Evaluate the expression whenver the expression string changes
-    const postFix = infixToPostFix(expression)
+    const postFix = infixToPostFix(expression.expression)
     const evalResult = evalPostFix(postFix)
     
     setResult(result => {      
@@ -49,74 +48,88 @@ const App = () => {
     return () => {
       window.removeEventListener('keydown', handleUserKeyPress)
     }
-  }, [input, expression])
+  }, [expression])
 
   const handleOperandPress = (char) => {
     // Set Operand to display. This includes all numbers and decimal
     const validChar = () => {
-      switch (char) {
-        case '.':
-          return (input.value.indexOf(char) === -1)
-        case '0':
-          return !(input.value.indexOf(char) === 0 && input.length === 1)
-        default:
-          return true
+      if (expression.expression.length > 0) {
+        const currentOperand = expression.expression[expression.expression.length - 1]
+        switch (char) {
+          case '.':
+            return currentOperand.indexOf(char) === -1
+          case '0':
+            return !(currentOperand.indexOf(char) === 0 && currentOperand.length === 1)
+          default:
+            return true
+        }
       }
+      return true
     }
     
     if (validChar()) {
-      if (input.newInput) {
-        setInput(input => (
+      if (expression.newOperand) {
+        setExpression(expression => (
           {
-            value: (char === '.' ? '0.' : char),
-            newInput: false
+            ...expression,
+            expression: [...expression.expression, char === '.' ? '0.' : char ],
+            newOperand: false
           }
-        ))
-        setExpression(expression => expression + (char === '.' ? '0.' : char))      
+        ))     
       } else {
-        setInput(input => (
+        setExpression(expression => {
+          const updatedExpression = [...expression.expression]
+          updatedExpression[updatedExpression.length - 1] = updatedExpression[updatedExpression.length - 1] + char
+          return (
           {
-            ...input,
-            value: input + char
+            ...expression,
+            expression: [...updatedExpression]
           }
-        ))
-        setExpression(expression => expression + char)
+        )})
       }      
     }
   }
 
   const handleOperatorPress = (char) => {
     // Change operator if no operand has been added
-    if (input.newInput) {
-      setExpression(expression => expression.slice(0, -2) + char + ' ')
+    if (expression.newOperand) {
+      const tmpExpression = [...expression.expression]
+      tmpExpression[tmpExpression.length - 1] = char
+      setExpression(expression => ({...expression, expression: tmpExpression}))
     } else {
       // Move current display to result.operand
-    setExpression(expression => {
-      if (expression.length === 0) {
-        return input.value + ' ' + char
-      } else {
-        return expression + ' ' + char + ' '
-      }
-    })
-    setInput(input => ({...input, newInput: true }))
-  }
+      setExpression(expression => (
+        {
+          ...expression, 
+          expression: [...expression.expression, char],
+          newOperand: true
+        }
+      ))
     }
+  }
     
-
   const handleEqualPress = () => {
     if (result) {
-      setExpression(result)
+      setExpression(expression => ({...expression, expression: [result]}))
       setResult('')
     }
   }
 
   const handleClearPress = () => {
-    setExpression(expression => expression.trim().slice(0, -1) + ' ')
+    setExpression(expression => {
+      const strExpression = expression.expression.join(' ')
+      return (
+        {
+          ...expression,
+          expression: strExpression.trim().slice(0, -1).split(' ')
+        }
+      )
+    })
   }
 
   return (
     <div className="Calc-app">
-      <Display result={result} expression={expression} />
+      <Display result={result} expression={expression.expression.join(' ')} />
       <div className="Calc-keys">
         <Keypad handleOperandPress={handleOperandPress} handleEqualPress={handleEqualPress} />
         <Operators handleOperatorPress={handleOperatorPress} handleClearPress={handleClearPress} />

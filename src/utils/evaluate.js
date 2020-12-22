@@ -1,4 +1,5 @@
 export const infixToPostFix = (exp) => {
+  if (exp.length === 1) return exp[0]
   const operators = {
     '/': {func: (a,b) => a/b, prec: 0},
     '*': {func: (a,b) => a*b, prec: 0},
@@ -6,7 +7,7 @@ export const infixToPostFix = (exp) => {
     '-': {func: (a,b) => a-b, prec: 1}
   }
   
-  const output = exp.split(' ').reduce((acc, cur) => {
+  const output = exp.reduce((acc, cur) => {
     console.log('reduce cur', cur)
     if (cur != ""){
     if (cur in operators) {
