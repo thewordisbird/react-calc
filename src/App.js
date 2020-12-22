@@ -6,70 +6,14 @@ import Keypad from './components/Keypad';
 import Operators from './components/Operators';
 // CSS
 import './App.css'
+// utils
+import { infixToPostFix, evalPostFix } from './utils/evaluate'
 
 const App = () => {
-  console.log('rendering')
   const [result, setResult] = useState('')
   const [expression, setExpression] = useState('')
   const [input, setInput] = useState('0')
   const [newInput, setNewInput] = useState(true)
-
-  const infixToPostFix = (exp) => {
-    console.log(expression)
-    const operators = {
-      '/': {func: (a,b) => a/b, prec: 0},
-      '*': {func: (a,b) => a*b, prec: 0},
-      '+': {func: (a,b) => a+b, prec: 1},
-      '-': {func: (a,b) => a-b, prec: 1}
-    }
-    
-    const output = exp.split(' ').reduce((acc, cur) => {
-      console.log('reduce cur', cur)
-      if (cur != ""){
-      if (cur in operators) {
-        console.log('eval operator')
-        // Move any operator out of opStack that has a lower or == precident
-        const tempOpStack = [...acc.opStack]
-        const tempOutput = [...acc.output] 
-        while (tempOpStack.length !== 0 && operators[tempOpStack[tempOpStack.length - 1]].prec <= operators[cur].prec ) {
-          
-          tempOutput.push(tempOpStack.pop()) 
-        }
-        tempOpStack.push(cur)
-      acc = {...acc, output: tempOutput, opStack:tempOpStack}
-      } else {
-        acc = {...acc, output: [...acc.output, cur]}
-      }}
-      return acc
-    }, {output: [], opStack: []})
-
-    // Move any remaining operators from opStack to output and return
-      return [...output.output, ...output.opStack.reverse()]
-  }
-
-  const evalPostFix = (postFixExp) => {
-    if (postFixExp.length > 2){
-    const operators = {
-      '/': {func: (a,b) => a/b, prec: 0},
-      '*': {func: (a,b) => a*b, prec: 0},
-      '+': {func: (a,b) => a+b, prec: 1},
-      '-': {func: (a,b) => a-b, prec: 1}
-    }
-
-    return  postFixExp.reduce((acc, cur) => {
-      if (cur in operators) {
-        const b = acc.pop()
-        const a = acc.pop()
-        acc = [...acc, operators[cur].func(a,b)]
-      } else {
-        acc = [...acc, parseFloat(cur)]
-      }
-      return acc
-    }, [])
-  } else{
-    return ''
-  } 
-}
 
   useEffect(() => {
     console.log(infixToPostFix(expression))
@@ -86,6 +30,26 @@ const App = () => {
     })    
   }, [expression])
 
+  useEffect(() => {
+    const handleUserKeyPress = (e) => {
+      if ("0123456789.".indexOf(e.key) > -1) {
+        handleOperandPress(e.key)      
+      } else if ("+-/*".indexOf(e.key) > -1) {
+        handleOperatorPress(e.key)
+      } else if (e.key === 'Enter') {
+        handleEqualPress('=')
+      } else if (e.key === 'Backspace') {
+        handleClearPress()
+      }
+    }
+
+    window.addEventListener('keydown', handleUserKeyPress)
+    return () => {
+      window.removeEventListener('keydown', handleUserKeyPress)
+    }
+  }, [newInput, expression])
+
+  
 
   const handleOperandPress = (char) => {
     // Set Operand to display. This includes all numbers and decimal

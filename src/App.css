@@ -25,7 +25,6 @@ html, body {
     width: 100vw;
     height: 20vh;
     background:white;
-    
     padding: 0 30px 0 30px;
     display: flex;
     flex-direction: column;
@@ -128,7 +127,4 @@ html, body {
         width: 100%;
         flex: 1 0;
     }
-    
-    
-    
 }
