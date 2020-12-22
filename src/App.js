@@ -6,7 +6,7 @@ import Keypad from './components/Keypad';
 import Operators from './components/Operators';
 // CSS
 import './App.css'
-// utils
+// Utils
 import { infixToPostFix, evalPostFix } from './utils/evaluate'
 
 const App = () => {
