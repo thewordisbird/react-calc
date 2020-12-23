@@ -6,7 +6,9 @@ const operators = {
 }
 
 export const infixToPostFix = (exp) => {
-  if (exp.length === 1) return exp[0]
+  if (exp.length === 1) {
+    return exp
+  } 
   
   const output = exp.reduce((acc, cur) => {
     if (cur != ""){

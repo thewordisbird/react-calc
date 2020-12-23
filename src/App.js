@@ -11,16 +11,18 @@ import { infixToPostFix, evalPostFix } from './utils/evaluate'
 
 const App = () => {
   const [result, setResult] = useState('')
-  const [expression, setExpression] = useState({
+  const [expression, setExpression] = useState(
+    {
     expression: [],
+    newExpression: true,
     newOperand: true
-  })
+    }
+  )
   
   useEffect(() => {
     // Evaluate the expression whenver the expression string changes
     const postFix = infixToPostFix(expression.expression)
     const evalResult = evalPostFix(postFix)
-    
     setResult(result => {     
       if  (!isNaN(evalResult)) {
         return evalResult.toString()
@@ -38,17 +40,16 @@ const App = () => {
       } else if ("+-/*".indexOf(e.key) > -1) {
         handleOperatorPress(e.key)
       } else if (e.key === 'Enter') {
-        handleEqualPress('=')
+        handleEqualPress()
       } else if (e.key === 'Backspace') {
         handleClearPress()
       }
     }
-
     window.addEventListener('keydown', handleUserKeyPress)
     return () => {
       window.removeEventListener('keydown', handleUserKeyPress)
     }
-  }, [expression])
+  }, [expression, result])
 
   const handleOperandPress = (char) => {
     // Set Operand to display. This includes all numbers and decimal
@@ -72,7 +73,8 @@ const App = () => {
         setExpression(expression => (
           {
             ...expression,
-            expression: [...expression.expression, char === '.' ? '0.' : char ],
+            expression: expression.newExpression ? [char === '.' ? '0.' : char] : [...expression.expression, char === '.' ? '0.' : char ],
+            newExpression: false,
             newOperand: false
           }
         ))     
@@ -92,12 +94,20 @@ const App = () => {
 
   const handleOperatorPress = (char) => {
     // Change operator if no operand has been added
-    if (expression.newOperand && expression.expression.length > 1) {
+    if (expression.newExpression || !expression.newOperand) {
+      setExpression(expression => (
+        {
+          ...expression, 
+          expression: [...expression.expression, char],
+          newExpression: false,
+          newOperand: true
+        }
+      ))
+    } else if (expression.newOperand && expression.expression.length > 1) {
       const tmpExpression = [...expression.expression]
       tmpExpression[tmpExpression.length - 1] = char
       setExpression(expression => ({...expression, expression: tmpExpression}))
-    } else if (expression.newOperand) {
-      console.log('here')
+    } else {
       if (char === '-') {
         setExpression(expression => (
           {
@@ -106,24 +116,18 @@ const App = () => {
           }
         ))
       }
-      
-    } else {
-      // Move current display to result.operand
-      setExpression(expression => (
-        {
-          ...expression, 
-          expression: [...expression.expression, char],
-          newOperand: true
-        }
-      ))
     }
   }
     
   const handleEqualPress = () => {
-    if (result) {
-      setExpression(expression => ({...expression, expression: [result]}))
-      setResult('')
-    }
+    setExpression(expression => (
+      {
+        ...expression, 
+        expression: [result],
+        newExpression: true,
+        newOperand: true
+      }
+    ))    
   }
 1
   const handleClearPress = () => {
