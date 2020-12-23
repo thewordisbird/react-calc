@@ -2,7 +2,7 @@
 A calculator similar to Android's calculator, that shows the expression and result.
 Check it out at [calc.thewordisbird.dev](calc.thewordisbird.dev).
 
-![](public/screenshot.png)
+<p align="center"><img src="/public/screenshot.png"></p>
 
 
 ## Motivation
