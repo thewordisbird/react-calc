@@ -51,6 +51,7 @@ const useCalcState = (initialState=INITIAL_STATE) =>{
       }
     })
   }
+
   // State update for result change
   const updateResult = (newResult) => {
     setCalcState(state =>(
@@ -114,57 +115,24 @@ const useCalcState = (initialState=INITIAL_STATE) =>{
       )
     })
   }
-  
-  return {calcState, resetExpression, clearExpression, updateResult, addOperand, updateOperand, addOperator, updateOperator}
-}
-const Calculator = () => {
-  const { calcState, resetExpression, clearExpression, updateResult, addOperand, updateOperand, addOperator, updateOperator } = useCalcState()
-  const { result, expression, newExpression, newOperand } = calcState
 
-  useEffect(() => {
-    // Evaluate the expression whenver the expression string changes
-    const postFix = infixToPostFix(expression)
-    const evalResult = evalPostFix(postFix)
-    if (!isNaN(evalResult)) {
-      updateResult(evalResult)
-    }
-  }, [expression])
-
-  useEffect(() => {
-    // Add event handler to allow for keyboard interaction with app
-    const handleUserKeyPress = (e) => {
-      if ("0123456789.".indexOf(e.key) > -1) {
-        handleOperandPress(e.key)      
-      } else if ("+-/*".indexOf(e.key) > -1) {
-        handleOperatorPress(e.key)
-      } else if (e.key === 'Enter') {
-        handleEqualPress()
-      } else if (e.key === 'Backspace') {
-        handleClearPress()
+  // Keypress logic
+  const validChar = (operand) => {
+    if (expression.length > 0) {
+      const currentOperand = expression[expression.length - 1]
+      switch (operand) {
+        case '.':
+          return currentOperand.indexOf(operand) === -1
+        case '0':
+          return !(currentOperand.indexOf(operand) === 0 && currentOperand.length === 1)
+        default:
+          return true
       }
     }
-    window.addEventListener('keydown', handleUserKeyPress)
-    return () => {
-      window.removeEventListener('keydown', handleUserKeyPress)
-    }
-  }, [expression, result])
+    return true
+  }
 
-  const handleOperandPress = (operand) => {
-    // Set Operand to display. This includes all numbers and decimal
-    const validChar = () => {
-      if (expression.length > 0) {
-        const currentOperand = expression[expression.length - 1]
-        switch (operand) {
-          case '.':
-            return currentOperand.indexOf(operand) === -1
-          case '0':
-            return !(currentOperand.indexOf(operand) === 0 && currentOperand.length === 1)
-          default:
-            return true
-        }
-      }
-      return true
-    }
+  const onOperandPress = (operand) => {
     if (validChar()) {
       if (newOperand) {
         addOperand(operand)
@@ -174,7 +142,7 @@ const Calculator = () => {
     }      
   }
 
-  const handleOperatorPress = (operator) => {
+  const onOperatorPress = (operator) => {
     if (newExpression || !newOperand) {
       // Add a new operator to the expression
       addOperator(operator)
@@ -188,14 +156,78 @@ const Calculator = () => {
       }
     }
   }
+
+  const onClearPress = () => {
+    clearExpression()
+  }
+  
+  const onEqualPress = () => {
+    resetExpression(result)
+  }
+  
+  // Recalculate as side effect to any change in expression
+  useEffect(() => {
+    // Evaluate the expression whenver the expression string changes
+    const postFix = infixToPostFix(expression)
+    const evalResult = evalPostFix(postFix)
+    if (!isNaN(evalResult)) {
+      updateResult(evalResult)
+    }
+  }, [expression])
+
+  
+  return {calcState, onOperandPress, onOperatorPress, onClearPress, onEqualPress}
+}
+
+const useKeyboard = ( deps, cb ) => {
+  useEffect(() => {
+    window.addEventListener('keydown', cb)
+    return () => {
+      window.removeEventListener('keydown', cb)
+    }
+  }, [deps])
+}
+
+const Calculator = () => {
+  const { 
+    calcState, 
+    onOperandPress,
+    onOperatorPress,
+    onClearPress,
+    onEqualPress
+  } = useCalcState()
+  const { result, expression } = calcState
+
+  const handleOperandPress = (operand) => {
+    onOperandPress(operand)
+  }
+
+  const handleOperatorPress = (operator) => {
+    onOperatorPress(operator)
+  }
     
   const handleEqualPress = () => {
-    resetExpression(result)
+    onEqualPress()
   }
 
   const handleClearPress = () => {
-    clearExpression()
+    onClearPress()
   }
+
+  // Add keyboard 
+  const handleKeyboardInput = useCallback((e) => {
+    if ("0123456789.".indexOf(e.key) > -1) {
+      handleOperandPress(e.key)      
+    } else if ("+-/*".indexOf(e.key) > -1) {
+      handleOperatorPress(e.key)
+    } else if (e.key === 'Enter') {
+      handleEqualPress()
+    } else if (e.key === 'Backspace') {
+      handleClearPress()
+    }
+  }, [handleOperandPress, handleOperatorPress, handleClearPress, handleEqualPress])
+  
+  const keyboardInput = useKeyboard([expression, result], handleKeyboardInput)
 
   return (
     <div className="Calc-app">
