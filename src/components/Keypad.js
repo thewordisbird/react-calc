@@ -3,31 +3,26 @@ import PropType from 'prop-types';
 // Components
 import Key from './Key'
 
-
-const Keypad = ({ handleOperandPress, handleEqualPress }) => (
+const Keypad = ({ handleClick }) => (
   // Component to house the numeric keys. In this case it includes the decimal key
   <div className="Calc-keypad">
-    {"7894561230.".split('').map( (val, idx) => (
+    {"7894561230.=".split('').map( (val, idx) => (
         <Key 
           key={idx}
           value={val} 
-          handleClick={handleOperandPress}
+          onClick={() => handleClick(
+            val === '=' 
+              ? {type: 'equal', key: val}
+              : {type: 'operand', key: val}
+            )}
         >
           {val}
         </Key>
     ))}
-
-    <Key
-      value='='
-      handleClick={handleEqualPress}
-    >
-      =
-    </Key>
   </div>
 )
 Keypad.propTypes = {
-  handleOperandPress: PropType.func.isRequired,
-  handleEqualPress: PropType.func.isRequired
+  handleClick: PropType.func.isRequired,
 }
 
 export default Keypad;

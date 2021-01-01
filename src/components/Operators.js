@@ -3,45 +3,43 @@ import  PropType from 'prop-types';
 // Components
 import Key from './Key';
 
-const Operators = ({ handleOperatorPress, handleClearPress}) => (
+const Operators = ({ handleClick }) => (
   // Component to hold the aritmatic operator keys
   <div className="Calc-operators">
     <Key 
       value="Clear"
-      handleClick={handleClearPress}
+      onClick={() => handleClick({type: 'clear', key: 'clear'})}
     >
       <i className="fas fa-backspace" />
     </Key>
     <Key 
       value="/"
-      handleClick={handleOperatorPress}
+      onClick={() => handleClick({type: 'operator', key: '/'})}
     >
       &#247;
     </Key>
     <Key 
       value="*"
-      handleClick={handleOperatorPress}
+      onClick={() => handleClick({type: 'operator', key: '*'})}
     >
       &#215;
     </Key>
     <Key 
       value="-"
-      handleClick={handleOperatorPress}
+      onClick={() => handleClick({type: 'operator', key: '-'})}
     >
       -
     </Key>
     <Key 
       value="+"
-      handleClick={handleOperatorPress}
+      onClick={() => handleClick({type: 'operator', key: '+'})}
     >
       +
     </Key>
-    
   </div>
 )
 Operators.propTypes = {
-  handleOperatorPress: PropType.func.isRequired,
-  handleClearPress: PropType.func.isRequired
+  handleClick: PropType.func.isRequired,
 }
 
 export default Operators

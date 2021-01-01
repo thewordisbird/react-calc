@@ -1,25 +1,13 @@
-/* eslint-disable no-unused-vars */
-import React, { useState, useEffect, useCallback } from 'react';
-//Components
-import Display from './Display';
-import Keypad from './Keypad';
-import Operators from './Operators';
-// CSS
-import '../App.css'
+import { useState, useEffect } from 'react';
 // Utils
 import { infixToPostFix, evalPostFix } from '../utils/evaluate'
-/**
- * Constants 
- */
+
 const INITIAL_STATE = {
   result: '',
   expression: [],
   newExpression: true,
   newOperand: true
 }
-/**
- * Custom Hooks
- */
 
 const useCalcState = (initialState=INITIAL_STATE) =>{
   // Handle state and state updated for Calculator
@@ -61,6 +49,7 @@ const useCalcState = (initialState=INITIAL_STATE) =>{
       }
     ))
   }
+
   // State updates for operand input
   const addOperand = (operand) => {
     setCalcState(state => {
@@ -164,6 +153,25 @@ const useCalcState = (initialState=INITIAL_STATE) =>{
   const onEqualPress = () => {
     resetExpression(result)
   }
+
+  const onKeyPress = ({type, key}) => {
+    switch (type) {
+      case 'operand':
+        onOperandPress(key);
+        break;
+      case 'operator':
+        onOperatorPress(key);
+        break;
+      case 'equal':
+        onEqualPress();
+        break;
+      case 'clear':
+        onClearPress();
+        break;
+      default:
+        break;
+    }
+  }
   
   // Recalculate as side effect to any change in expression
   useEffect(() => {
@@ -175,68 +183,7 @@ const useCalcState = (initialState=INITIAL_STATE) =>{
     }
   }, [expression])
 
-  
-  return {calcState, onOperandPress, onOperatorPress, onClearPress, onEqualPress}
+  return {calcState, onKeyPress}
 }
 
-const useKeyboard = ( deps, cb ) => {
-  useEffect(() => {
-    window.addEventListener('keydown', cb)
-    return () => {
-      window.removeEventListener('keydown', cb)
-    }
-  }, [deps])
-}
-
-const Calculator = () => {
-  const { 
-    calcState, 
-    onOperandPress,
-    onOperatorPress,
-    onClearPress,
-    onEqualPress
-  } = useCalcState()
-  const { result, expression } = calcState
-
-  const handleOperandPress = (operand) => {
-    onOperandPress(operand)
-  }
-
-  const handleOperatorPress = (operator) => {
-    onOperatorPress(operator)
-  }
-    
-  const handleEqualPress = () => {
-    onEqualPress()
-  }
-
-  const handleClearPress = () => {
-    onClearPress()
-  }
-
-  // Add keyboard 
-  const handleKeyboardInput = useCallback((e) => {
-    if ("0123456789.".indexOf(e.key) > -1) {
-      handleOperandPress(e.key)      
-    } else if ("+-/*".indexOf(e.key) > -1) {
-      handleOperatorPress(e.key)
-    } else if (e.key === 'Enter') {
-      handleEqualPress()
-    } else if (e.key === 'Backspace') {
-      handleClearPress()
-    }
-  }, [handleOperandPress, handleOperatorPress, handleClearPress, handleEqualPress])
-  
-  const keyboardInput = useKeyboard([expression, result], handleKeyboardInput)
-
-  return (
-    <div className="Calc-app">
-      <Display result={result} expression={expression.join(' ')} />
-      <div className="Calc-keys">
-        <Keypad handleOperandPress={handleOperandPress} handleEqualPress={handleEqualPress} />
-        <Operators handleOperatorPress={handleOperatorPress} handleClearPress={handleClearPress} />
-      </div>
-    </div>
-  )
-}
-export default Calculator;
+export default useCalcState;
