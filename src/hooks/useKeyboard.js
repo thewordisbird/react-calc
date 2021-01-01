@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-const useKeyboard = ( deps, cb ) => {
+const useKeyboard = (cb, deps) => {
   useEffect(() => {
     window.addEventListener('keydown', cb)
     return () => {

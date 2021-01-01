@@ -32,7 +32,7 @@ const App = () => {
     }
   }, [onKeyPress])
 
-  useKeyboard([result, expression], handleKeyboardInput)
+  useKeyboard(handleKeyboardInput, [result, expression])
 
   return (
     <CalculatorWrapper >
