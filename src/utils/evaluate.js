@@ -42,7 +42,7 @@ export const evalPostFix = (postFixExp) => {
         acc = [...acc, parseFloat(cur)]
       }
       return acc
-    }, [])
+    }, [])[0]
   } else{
     return ''
   } 

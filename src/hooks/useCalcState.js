@@ -179,7 +179,7 @@ const useCalcState = (initialState=INITIAL_STATE) =>{
     const postFix = infixToPostFix(expression)
     const evalResult = evalPostFix(postFix)
     if (!isNaN(evalResult)) {
-      updateResult(evalResult)
+      updateResult(evalResult.toString())
     }
   }, [expression])
 

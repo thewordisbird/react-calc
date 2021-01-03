@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 // Components
 import CalculatorWrapper from './components/CalculatorWrapper';
 import Display from './components/Display';
+import CalcKeys from './components/CalcKeys';
 import Keypad from './components/Keypad';
 import Operators from './components/Operators';
 // Hooks
@@ -10,6 +11,17 @@ import useCalcState from './hooks/useCalcState'
 import useKeyboard from './hooks/useKeyboard'
 // CSS
 import './App.css'
+
+const useDynamicFontSize = (resizer, resetter, [deps]) => {
+  
+  useEffect(() => {
+    resizer()
+  }, deps)
+
+  useEffect(() => {
+    resetter()
+  }, deps)
+}
 
 const App = () => {
   const { 
@@ -33,12 +45,48 @@ const App = () => {
   }, [onKeyPress])
 
   useKeyboard(handleKeyboardInput, [result, expression])
+  
+  /**
+   * START - Dynamic display font sizing
+   * */
+  const displayEl = document.querySelector(".Calc-expression")
+  const spanEl = document.getElementById("expression")
 
+  const resizer = (el) => {
+    const curFontSize = parseFloat(window.getComputedStyle(el, null).getPropertyValue("font-size"))
+    const newFontSize = .90 * curFontSize
+    el.style.fontSize = `${newFontSize}px`
+  }
+  
+  const resetter = (el) => {
+    el.style.removeProperty('font-size')
+  }
+
+  useEffect(() => {
+    // Effect to decrease the font size of the expression to keep it from
+    // overflowing the display container
+    if (displayEl && spanEl.offsetWidth > .90 * displayEl.offsetWidth) {
+      resizer(spanEl)      
+    }
+  }, [expression])
+
+  useEffect(() => {
+    // Effect to reset the fontsize to the original size
+    if (spanEl && expression.length <=1) {
+      resetter(spanEl)
+    }
+  }, [expression])
+  /**
+   * END - Dynamic display font sizing
+   * */
+  
   return (
     <CalculatorWrapper >
-      <Display result={result} expression={expression.join(' ')}/>
-      <Keypad handleClick={onKeyPress}/>
-      <Operators handleClick={onKeyPress}/>
+      <Display result={result} expression={expression}/>
+      <CalcKeys >
+        <Keypad handleClick={onKeyPress}/>
+        <Operators handleClick={onKeyPress}/>
+      </CalcKeys>
     </CalculatorWrapper>
   )
 }

@@ -5,7 +5,7 @@ const Display = ({ result, expression }) => (
   // Component to display the entry value or result after an operation
   <div className="Calc-display">
     <div className="Calc-expression">
-      {expression}
+      <span id="expression">{expression.join(' ')}</span>
     </div>    
     <div className="Calc-result">
       {result}
@@ -14,7 +14,7 @@ const Display = ({ result, expression }) => (
 )
 Display.propTypes = {
   result: PropType.string.isRequired,
-  expression: PropType.string.isRequired
+  expression: PropType.array.isRequired
 }
 
 export default Display;
