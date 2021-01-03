@@ -16,11 +16,12 @@ const useCalcState = (initialState=INITIAL_STATE) =>{
   
   // State update for new Expression
   const resetExpression = (initialValue=null) => {
+    console.log('init val', initialValue)
     setCalcState(state => {
       const { result } = state
       return {
-        result: initialValue ? result : '',
-        expression: initialValue ? [result] : [],
+        result: initialValue ? `${initialValue}` : result,
+        expression: initialValue ? [initialValue]: [result] ,
         newExpression: true,
         newOperand: true
       }
@@ -106,7 +107,7 @@ const useCalcState = (initialState=INITIAL_STATE) =>{
   }
 
   // Keypress logic
-  const validChar = (operand) => {
+  const validChar = (operand) => {  
     if (expression.length > 0) {
       const currentOperand = expression[expression.length - 1]
       switch (operand) {
@@ -120,10 +121,13 @@ const useCalcState = (initialState=INITIAL_STATE) =>{
     }
     return true
   }
-
+  
   const onOperandPress = (operand) => {
     if (validChar()) {
-      if (newOperand) {
+      if (expression.length > 0 && newExpression) {
+        console.log('resetting with', operand)
+        resetExpression(operand)
+      }else if (newOperand ) {
         addOperand(operand)
       } else {
         updateOperand(operand)
@@ -151,7 +155,9 @@ const useCalcState = (initialState=INITIAL_STATE) =>{
   }
   
   const onEqualPress = () => {
-    resetExpression(result)
+    if (result !== "") {
+      resetExpression(result)
+    }    
   }
 
   const onKeyPress = ({type, key}) => {
