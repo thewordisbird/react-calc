@@ -12,17 +12,6 @@ import useKeyboard from './hooks/useKeyboard'
 // CSS
 import './App.css'
 
-const useDynamicFontSize = (resizer, resetter, [deps]) => {
-  
-  useEffect(() => {
-    resizer()
-  }, deps)
-
-  useEffect(() => {
-    resetter()
-  }, deps)
-}
-
 const App = () => {
   const { 
     calcState, 
